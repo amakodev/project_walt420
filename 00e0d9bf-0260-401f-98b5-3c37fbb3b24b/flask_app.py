@@ -333,8 +333,8 @@ def profile():
 
 
     # PythonAnywhere manages running your Flask app. Remove or comment out this block.
-    # if __name__ == '__main__':
-    #     app.run(debug=True)
+    if __name__ == '__main__':
+        app.run(debug=True)
 
 
 

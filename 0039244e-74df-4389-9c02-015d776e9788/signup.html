@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sign Up - Walt420.Store</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            color: violet;
+            background-image: url('https://i.pinimg.com/736x/b8/ce/64/b8ce64f282d0a2de99b15b097be14e89.jpg');
+            background-size: cover;
+            background-attachment: fixed;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background-color: rgba(0, 0, 0, 0.85);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        h1, h2, p, form {
+            background-color: black;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+
+        input, button {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 6px;
+            background-color: #333;
+            color: white;
+        }
+
+        button {
+            background-color: violet;
+            color: black;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #c67aff;
+        }
+
+        .error-message {
+            color: red;
+            background-color: rgba(255, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            display: {% if error_message %}block{% else %}none{% endif %};
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Finish Creating Your Account</h1>
+        <p>Please set a password to continue and view dispensaries near you.</p>
+
+        <div class="error-message" id="errorMessage">
+            {{ error_message if error_message }}
+        </div>
+
+        <form id="passwordForm" action="/signup" method="POST">
+            <input type="hidden" id="signup_email" name="signup_email" value="{{ email_prefill if email_prefill else '' }}">
+
+            <label for="password">Create Password:</label>
+            <input type="password" id="password" name="password" required>
+
+            <button type="submit">Submit Password</button>
+        </form>
+    </div>
+</body>
+</html>
+
+
+
+

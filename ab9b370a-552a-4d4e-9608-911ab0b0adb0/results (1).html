@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Recommended Strains</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #0e001a;
+      color: #fff;
+      text-align: center;
+      padding: 20px;
+    }
+    .strain {
+      margin-bottom: 15px;
+      padding: 15px;
+      background-color: #1f0033;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #8a2be2;
+      width: 60%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    #map-container {
+      position: relative;
+      margin-top: 40px;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 0 10px #8a2be2;
+    }
+    #map {
+      height: 400px;
+      width: 100%;
+      filter: blur(8px);
+      pointer-events: none;
+    }
+    .map-unblurred #map {
+      filter: none;
+      pointer-events: auto;
+    }
+
+    /* Online stores also blurred by default */
+    .online-stores {
+      filter: blur(8px);
+      pointer-events: none;
+      transition: filter 0.3s ease;
+      margin-top: 20px;
+    }
+    .map-unblurred .online-stores {
+      filter: none;
+      pointer-events: auto;
+    }
+
+    .overlay {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: rgba(0, 0, 0, 0.6);
+      color: white;
+      font-size: 20px;
+      font-weight: bold;
+      z-index: 2;
+    }
+    .overlay-hidden {
+      display: none;
+    }
+    .overlay a {
+      color: #fff;
+      background: violet;
+      padding: 10px 20px;
+      border-radius: 6px;
+      text-decoration: none;
+      margin-left: 10px;
+    }
+    .overlay a:hover {
+      background: #c67aff;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Your Recommended Strains</h1>
+  <p>Hello, {{ name }}!</p>
+  <p>You selected: {{ desired_state }}</p>
+
+{% if show_map %}
+  <div style="text-align: right; padding: 10px;">
+    <a href="/profile?email={{ email }}">
+      <img src="{{ profile_picture_url }}" alt="Profile" style="width: 40px; height: 40px; border-radius: 50%;">
+    </a>
+  </div>
+{% endif %}
+
+
+
+  {% for strain in strains %}
+    <div class="strain">
+      <strong>{{ strain.strain }}</strong><br />
+      THC Score: {{ strain.score }}
+    </div>
+  {% endfor %}
+
+
+  <h2>Find them online at the websites below
+  or check the map to see dispensaries near you...</h2>
+
+  <!-- Online Stores inside map-container so it shares the unblurred class logic -->
+  <div id="map-container" class="{{ 'map-unblurred' if show_map else '' }}">
+
+    <div class="overlay {{ 'overlay-hidden' if show_map else '' }}">
+      Finish creating your password to view nearby dispensaries and online stores.
+      <a href="/signup?email={{ email }}">Go to Sign Up</a>
+    </div>
+
+    <div class="online-stores">
+      <ul style="list-style: none; padding: 0;">
+          <li><a href="https://420monkeys.com" target="_blank" style="color: violet;">420 Monkeys</a></li>
+          <li><a href="https://amazol.biz" target="_blank" style="color: violet;">Amazol</a></li>
+          <li><a href="https://cafe420.co.za" target="_blank" style="color: violet;">Cafe420</a></li>
+          <li><a href="https://tasteofcannabis.co.za" target="_blank" style="color: violet;">Taste of Cannabis</a></li>
+      </ul>
+    </div>
+
+    <div id="map"></div>
+  </div>
+
+<script>
+  function initMap() {
+    const mapContainer = document.getElementById("map-container");
+    const mapDiv = document.getElementById("map");
+
+    if (!mapContainer.classList.contains("map-unblurred")) {
+      console.log("Map is blurred; user not signed in.");
+      return;
+    }
+
+    if (!navigator.geolocation) {
+      mapDiv.innerHTML = `<div style="padding:20px;color:red;">Geolocation not supported.</div>`;
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(function(position) {
+      const userLocation = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude
+      };
+
+      const map = new google.maps.Map(mapDiv, {
+        center: userLocation,
+        zoom: 13,
+      });
+
+      new google.maps.Marker({
+        position: userLocation,
+        map: map,
+        title: "You are here",
+      });
+
+      const service = new google.maps.places.PlacesService(map);
+      const request = {
+        location: userLocation,
+        radius: 5000,
+        keyword: "cannabis dispensary",
+      };
+
+      service.nearbySearch(request, function(results, status) {
+        if (status === google.maps.places.PlacesServiceStatus.OK) {
+          for (let i = 0; i < results.length; i++) {
+            const place = results[i];
+            new google.maps.Marker({
+              position: place.geometry.location,
+              map: map,
+              title: place.name,
+            });
+          }
+        } else {
+          console.error('Places service failed:', status);
+        }
+      });
+    }, function(error) {
+      const errorMessage = "Error: " + error.message;
+      console.error(errorMessage);
+      mapDiv.innerHTML = `<div style="padding:20px;color:red;">${errorMessage}</div>`;
+    });
+  }
+</script>
+
+<script async defer
+src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC9ovPKeYgvCTDHqXYqX7t3dz3C95Y2Ad4&libraries=places&callback=initMap">
+</script>
+
+</body>
+</html>
+
+
+
+
+
